@@ -1,21 +1,57 @@
 var movies = require('../models/movies');
 
+// localhost:3000/movies ? stars = 5  &  order = asc
+// req.query = {
+//   stars: '5',
+//   order: 'asc'
+// };
+
+// var stars = parseInt(req.query.stars);
+// if (stars) {
+//   var result = movies.filter(function(movie){
+//     return movie.stars === stars;
+//   });
+//   res.status(200).json(result);
+// }
+// else {
+
+// }
+
+var sortNameAsc = function (a, b) {
+  if (a.name > b.name) {
+    return 1;
+  }
+  if (a.name < b.name) {
+    return -1;
+  }
+  // a must be equal to b
+  return 0;
+};
+
 module.exports = {
   index: function(req, res, next) {
+    var result = movies;
+
     var stars = parseInt(req.query.stars);
     if (stars) {
-      var result = movies.filter(function(movie){
+      result = result.filter(function(movie){
         return movie.stars === stars;
       });
-      res.status(200).json(result);
     }
-    else {
-      res.status(200).json(movies);
+
+    var order = req.query.order;
+    if (order === 'asc') {
+      result = result.sort(sortNameAsc);
     }
+    else if (order === 'dsc') {
+      result = result.sort(sortNameAsc).reverse();
+    }
+
+    res.status(200).json(result);
   },
 
   show: function(req, res, next) {
-    var id = parseInt(req.params.id);
+    var id = req.params.id;
     res.status(200).json(movies[id]);
   },
 
@@ -25,13 +61,13 @@ module.exports = {
   },
 
   update: function(req, res, next) {
-    var index = parseInt(req.params.id);
+    var index = req.params.id;
     movies[index] = req.body;
     res.status(200).json(movies[index]);
   },
 
   destroy: function(req, res, next) {
-    var index = parseInt(req.params.id);
+    var index = req.params.id;
     movies.splice(index, 1);
     res.sendStatus(204);
   }
